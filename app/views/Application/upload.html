@@ -1,0 +1,19 @@
+#{extends 'main.html' /}
+#{set title:'Upload' /}
+
+#{form @Application.saveFile(), enctype:'multipart/form-data'}
+<div>
+    #{field 'file'}
+        <div>
+            <label for="${field.id}">&{'import.file'}</label>
+        </div>
+        <div>
+            <input type="file" id="${field.id}" name="${field.name}" accept="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" >
+        </div>
+        <div class="error">${field.error}</div>
+    #{/field}
+</div>
+<div class="buttons">
+    <input class="button" type="submit" value="Upload" />
+</div>
+#{/form}
