@@ -14,6 +14,9 @@ GET     /getchild                               Application.getChild
 GET     /getparentchild                         Application.getChildParent
 GET     /upload                                 Application.upload
 GET     /download                               Application.getFile
+GET     /stuff                                  Application.populateStuff
+GET     /stuff/add/{id}                         Application.addStuff
+GET     /stuff/{id}                             Application.getStuff
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

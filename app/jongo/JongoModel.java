@@ -1,10 +1,15 @@
 package jongo;
 
+import com.mongodb.CommandResult;
+import com.mongodb.WriteResult;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.bson.types.ObjectId;
 import org.jongo.MongoCollection;
+import org.jongo.Update;
 import org.jongo.marshall.jackson.id.Id;
 import play.Logger;
+import play.exceptions.UnexpectedException;
 
 import static org.jongo.Oid.withOid;
 
@@ -29,7 +34,18 @@ public abstract class JongoModel<T> {
 
     public T save() {
 
-        collection(this.getClass()).save(this);
+        WriteResult result = collection(this.getClass()).save(this);
+//        CommandResult lastError = result.getLastError();
+//        System.out.println(lastError.getErrorMessage());
+//        if(!lastError.ok()) {
+//            throw new UnexpectedException("We got ourselves an error: " + lastError.getErrorMessage());
+//        }
+
+        return (T) this;
+    }
+
+
+    public T saveOrUpdate() {
 
         return (T) this;
     }

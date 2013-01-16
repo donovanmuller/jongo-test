@@ -1,16 +1,18 @@
 package controllers;
 
+import com.mongodb.CommandResult;
+import com.mongodb.WriteResult;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import jongo.Jongo;
-import models.TestCacheableModel;
-import models.TestChild;
-import models.TestModel;
-import models.TestParent;
+import models.*;
 import org.bson.types.ObjectId;
+import org.jongo.Update;
+import play.exceptions.UnexpectedException;
 import play.mvc.Controller;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public abstract class Application extends Controller {
 
@@ -103,5 +105,52 @@ public abstract class Application extends Controller {
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+    }
+
+    public static void populateStuff() {
+
+        TestClobber clobber = new TestClobber();
+        clobber.stuff.add("1");
+        clobber.stuff.add("2");
+        clobber.stuff.add("3");
+
+        clobber.save();
+
+        renderText("Created stuff: " + clobber.id);
+    }
+
+    public static void addStuff(String id) {
+
+//        TestClobber clobber = TestClobber.findById(id, TestClobber.class);
+        TestClobber clobber = new TestClobber();
+        clobber = clobber.save();
+        try {
+            for(int x = 0 ; x < 1000000 ; x++) {
+                clobber.stuff.add("This is a stupid string and means nothing: " + x);
+
+                System.out.println("Saved: " + x);
+                if(x % 10000 == 0) {
+                    WriteResult upsert = Jongo.getCollection("clobber").update(new ObjectId(clobber.id)).with("{$pushAll: {stuff: #}}", clobber.stuff);
+                    CommandResult lastError = upsert.getLastError();
+                    System.out.println(lastError.getErrorMessage());
+                    if(!lastError.ok()) {
+                        throw new UnexpectedException("We got ourselves an error: " + lastError.getErrorMessage());
+                    }
+
+                    clobber.stuff.clear();
+                }
+            }
+        } catch(UnexpectedException ue) {
+            renderText("Error: " + ue.getMessage());
+        }
+
+        renderJSON("All done! :)");
+    }
+
+    public static void getStuff(String id) {
+
+        TestClobber byId = TestClobber.findById(id, TestClobber.class);
+
+        renderText(byId.stuff.size());
     }
 }
